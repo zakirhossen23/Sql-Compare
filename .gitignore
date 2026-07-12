@@ -1,0 +1,33 @@
+## .NET Framework
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.config
+*.manifest
+*.user
+*.suo
+*.sln.docstates
+*.log
+*.tmp
+*.cache
+*.nupkg
+
+## Visual Studio
+.vs/
+*.csproj.user
+*.csproj.references
+*.sln.ide/
+
+## Test data / backups
+TestData/
+!TestData/placeholder.txt
+
+## Run helpers
+run.bat
+
+## OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
