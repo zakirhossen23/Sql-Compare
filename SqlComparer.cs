@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Sql_Compare
 {
@@ -605,7 +606,8 @@ namespace Sql_Compare
 
             foreach (var cc in table.CheckConstraints)
             {
-                lines.Add($"    CONSTRAINT {Q(cc.Name)} CHECK ({cc.Definition})");
+                var ccDef = ConvertBracketsToBackticks(cc.Definition);
+                lines.Add($"    CONSTRAINT {Q(cc.Name)} CHECK ({ccDef})");
             }
 
             sb.AppendLine(string.Join(",\n", lines));
@@ -761,9 +763,18 @@ namespace Sql_Compare
             return $"ALTER TABLE {Tbl(table)} DROP INDEX {Q(uq.Name)};";
         }
 
+        /// <summary>
+        /// Converts SQL Server bracket-quoted identifiers [name] to MySQL backtick-quoted `name`.
+        /// </summary>
+        private static string ConvertBracketsToBackticks(string sql)
+        {
+            return Regex.Replace(sql, @"\[(\w+)\]", "`$1`");
+        }
+
         private string GenerateAddCheckConstraintScript(TableSchema table, CheckConstraintSchema cc)
         {
-            return $"ALTER TABLE {Tbl(table)} ADD CONSTRAINT {Q(cc.Name)} CHECK ({cc.Definition});";
+            var definition = ConvertBracketsToBackticks(cc.Definition);
+            return $"ALTER TABLE {Tbl(table)} ADD CONSTRAINT {Q(cc.Name)} CHECK ({definition});";
         }
 
         private string GenerateDropCheckConstraintScript(TableSchema table, CheckConstraintSchema cc)
