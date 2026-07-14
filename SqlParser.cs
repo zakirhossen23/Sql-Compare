@@ -64,6 +64,7 @@ namespace Sql_Compare
             var lines = sql.Split('\n');
             bool inInsert = false;
             int insertDepth = 0;
+            bool inString = false;
             var currentInsert = new System.Text.StringBuilder();
             string currentTable = null;
 
@@ -81,15 +82,12 @@ namespace Sql_Compare
                     {
                         inInsert = true;
                         insertDepth = 0;
+                        inString = false;
                         currentTable = insertMatch.Groups[2].Value;
                         currentInsert.Clear();
                         currentInsert.Append(line);
-                        // Count parens
-                        foreach (char c in line)
-                        {
-                            if (c == '(') insertDepth++;
-                            if (c == ')') insertDepth--;
-                        }
+                        // Count parens with string awareness
+                        CountParensSqlLine(line, ref insertDepth, ref inString);
                         if (insertDepth <= 0)
                         {
                             // Single line insert
@@ -103,11 +101,7 @@ namespace Sql_Compare
                 {
                     currentInsert.Append('\n');
                     currentInsert.Append(line);
-                    foreach (char c in line)
-                    {
-                        if (c == '(') insertDepth++;
-                        if (c == ')') insertDepth--;
-                    }
+                    CountParensSqlLine(line, ref insertDepth, ref inString);
                     if (insertDepth <= 0)
                     {
                         ProcessInsertLine(currentInsert.ToString(), currentTable, result);
@@ -118,6 +112,50 @@ namespace Sql_Compare
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Count parentheses in SQL text while respecting string literal boundaries.
+        /// Handles single-quoted strings with both '' and \' escape sequences.
+        /// </summary>
+        private static void CountParensSqlLine(string text, ref int depth, ref bool inString)
+        {
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (inString)
+                {
+                    // Handle backslash escapes (MariaDB/MySQL default)
+                    if (c == '\\' && i + 1 < text.Length)
+                    {
+                        i++; // skip escaped character
+                    }
+                    // Handle SQL standard doubled quotes
+                    else if (c == '\'' && i + 1 < text.Length && text[i + 1] == '\'')
+                    {
+                        i++; // skip second quote of doubled pair
+                    }
+                    else if (c == '\'')
+                    {
+                        inString = false; // end of string
+                    }
+                }
+                else
+                {
+                    if (c == '\'')
+                    {
+                        inString = true; // start of string
+                    }
+                    else if (c == '(')
+                    {
+                        depth++;
+                    }
+                    else if (c == ')')
+                    {
+                        depth--;
+                    }
+                }
+            }
         }
 
         internal class RawTableData
@@ -927,11 +965,12 @@ namespace Sql_Compare
         public static string RemoveInsertStatements(this string sql)
         {
             // Remove INSERT INTO ... VALUES (...) blocks
-            // Handle multi-line inserts
+            // Handle multi-line inserts with string-aware paren counting
             var sb = new System.Text.StringBuilder();
             var lines = sql.Split('\n');
             bool inInsert = false;
             int insertDepth = 0;
+            bool inString = false;
 
             foreach (var line in lines)
             {
@@ -941,23 +980,16 @@ namespace Sql_Compare
                 {
                     inInsert = true;
                     insertDepth = 0;
-                    // Count parens in the INSERT line to see if it ends here
-                    foreach (char c in line)
-                    {
-                        if (c == '(') insertDepth++;
-                        if (c == ')') insertDepth--;
-                    }
+                    inString = false;
+                    // Count parens in the INSERT line with string awareness
+                    CountParensSql(line, ref insertDepth, ref inString);
                     if (insertDepth <= 0) inInsert = false;
                     continue;
                 }
 
                 if (inInsert)
                 {
-                    foreach (char c in line)
-                    {
-                        if (c == '(') insertDepth++;
-                        if (c == ')') insertDepth--;
-                    }
+                    CountParensSql(line, ref insertDepth, ref inString);
                     if (insertDepth <= 0)
                     {
                         inInsert = false;
@@ -969,6 +1001,50 @@ namespace Sql_Compare
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Count parentheses in SQL text while respecting string literal boundaries.
+        /// Handles single-quoted strings with both '' and \' escape sequences.
+        /// </summary>
+        private static void CountParensSql(string text, ref int depth, ref bool inString)
+        {
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (inString)
+                {
+                    // Handle backslash escapes (MariaDB/MySQL default)
+                    if (c == '\\' && i + 1 < text.Length)
+                    {
+                        i++; // skip escaped character
+                    }
+                    // Handle SQL standard doubled quotes
+                    else if (c == '\'' && i + 1 < text.Length && text[i + 1] == '\'')
+                    {
+                        i++; // skip second quote of doubled pair
+                    }
+                    else if (c == '\'')
+                    {
+                        inString = false; // end of string
+                    }
+                }
+                else
+                {
+                    if (c == '\'')
+                    {
+                        inString = true; // start of string
+                    }
+                    else if (c == '(')
+                    {
+                        depth++;
+                    }
+                    else if (c == ')')
+                    {
+                        depth--;
+                    }
+                }
+            }
         }
     }
 
@@ -1043,29 +1119,56 @@ namespace Sql_Compare
             string valuesPart = valuesMatch.Groups[1].Value.Trim().Trim(';').Trim();
 
             // Find top-level parenthesized tuples: (val,val,...),(val,val,...)
+            // Use string-aware paren counting to avoid breaking on parens inside string literals
             int depth = 0;
             int start = -1;
             var rawTuples = new List<string>();
+            bool inString = false;
 
             for (int i = 0; i < valuesPart.Length; i++)
             {
                 char c = valuesPart[i];
-                if (c == '(' && depth == 0)
+
+                if (inString)
                 {
-                    start = i + 1;
-                    depth = 1;
-                }
-                else if (c == '(')
-                {
-                    depth++;
-                }
-                else if (c == ')')
-                {
-                    depth--;
-                    if (depth == 0 && start >= 0)
+                    // Handle backslash escapes
+                    if (c == '\\' && i + 1 < valuesPart.Length)
                     {
-                        rawTuples.Add(valuesPart.Substring(start, i - start));
-                        start = -1;
+                        i++; // skip escaped char
+                    }
+                    // Handle SQL standard doubled quotes
+                    else if (c == '\'' && i + 1 < valuesPart.Length && valuesPart[i + 1] == '\'')
+                    {
+                        i++; // skip second quote of doubled pair
+                    }
+                    else if (c == '\'')
+                    {
+                        inString = false; // end of string
+                    }
+                }
+                else
+                {
+                    if (c == '\'')
+                    {
+                        inString = true; // start of string
+                    }
+                    else if (c == '(' && depth == 0)
+                    {
+                        start = i + 1;
+                        depth = 1;
+                    }
+                    else if (c == '(')
+                    {
+                        depth++;
+                    }
+                    else if (c == ')')
+                    {
+                        depth--;
+                        if (depth == 0 && start >= 0)
+                        {
+                            rawTuples.Add(valuesPart.Substring(start, i - start));
+                            start = -1;
+                        }
                     }
                 }
             }
@@ -1103,12 +1206,18 @@ namespace Sql_Compare
 
                 if (c == '\'')
                 {
-                    // Quoted string: find matching quote, handle escaped quotes ('')
+                    // Quoted string: find matching quote, handle escaped quotes ('') and backslash escapes (\')
                     int start = i;
                     i++; // skip opening quote
                     while (i < tuple.Length)
                     {
-                        if (tuple[i] == '\'' && i + 1 < tuple.Length && tuple[i + 1] == '\'')
+                        // Handle backslash escapes: \', \\, etc.
+                        if (tuple[i] == '\\' && i + 1 < tuple.Length)
+                        {
+                            i += 2; // skip backslash and the escaped character
+                        }
+                        // Handle SQL standard doubled quotes: ''
+                        else if (tuple[i] == '\'' && i + 1 < tuple.Length && tuple[i + 1] == '\'')
                         {
                             i += 2; // skip escaped quote
                         }
