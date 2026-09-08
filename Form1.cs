@@ -103,6 +103,33 @@ namespace Sql_Compare
             }
         }
 
+        private void BtnViceVersa_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(_localFilePath) && string.IsNullOrEmpty(_serverFilePath))
+            {
+                UpdateStatus("Nothing to swap yet.");
+                return;
+            }
+
+            // Swap file paths
+            var tempPath = _localFilePath;
+            _localFilePath = _serverFilePath;
+            _serverFilePath = tempPath;
+
+            // Swap text box display
+            var tempTag = txtLocalFile.Tag;
+            var tempText = txtLocalFile.Text;
+            txtLocalFile.Tag = txtServerFile.Tag;
+            txtLocalFile.Text = txtServerFile.Text;
+            txtServerFile.Tag = tempTag;
+            txtServerFile.Text = tempText;
+
+            txtLocalFile.ForeColor = SystemColors.WindowText;
+            txtServerFile.ForeColor = SystemColors.WindowText;
+
+            UpdateStatus($"Swapped: Local = {_localFilePath ?? "(none)"}, Server = {_serverFilePath ?? "(none)"}");
+        }
+
         private void BtnCompare_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(_localFilePath) || string.IsNullOrEmpty(_serverFilePath))

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Sql_Compare
 {
@@ -41,6 +42,12 @@ namespace Sql_Compare
         public string Collation { get; set; }
         public bool IsRowGuidCol { get; set; }
         public string GeneratedAlwaysType { get; set; } // AS ROW START, AS ROW END, etc.
+        
+        // For ENUM type columns
+        public List<string> EnumValues { get; set; } = new List<string>();
+        
+        // For timestamp ON UPDATE clause
+        public string OnUpdate { get; set; }
 
         public string GetDataTypeDisplay()
         {
@@ -63,6 +70,15 @@ namespace Sql_Compare
             {
                 if (Precision.HasValue) return $"{DataType}({Precision})";
                 return DataType;
+            }
+            if (type == "ENUM")
+            {
+                if (EnumValues.Count > 0)
+                {
+                    var values = string.Join(",", EnumValues.Select(v => $"'{v}'"));
+                    return $"ENUM({values})";
+                }
+                return "ENUM"; // Will be invalid SQL but at least shows the type
             }
             // For integer types, don't add display width
             return DataType + (IsUnsigned ? " unsigned" : "");

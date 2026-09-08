@@ -785,8 +785,25 @@ namespace Sql_Compare
                 column.DefaultValue = defaultMatch.Groups[1].Value.Trim().Trim(',').Trim();
             }
 
+            // --- Check for ENUM values (e.g., ENUM('value1','value2')) ---
+            if (column.DataType.Equals("ENUM", StringComparison.OrdinalIgnoreCase))
+            {
+                var enumMatch = Regex.Match(text, @"ENUM\s*\(([^)]+)\)", RegexOptions.IgnoreCase);
+                if (enumMatch.Success)
+                {
+                    var enumContent = enumMatch.Groups[1].Value;
+                    // Split by comma, handling quoted strings
+                    var values = SplitEnumValues(enumContent);
+                    column.EnumValues.AddRange(values);
+                }
+            }
+
             // --- Check for ON UPDATE (MariaDB timestamp feature) ---
-            // Don't treat as default, just note it if needed
+            var onUpdateMatch = Regex.Match(remaining, @"ON\s+UPDATE\s+(.+?)(?:\s+(?:NOT\s+NULL|NULL|AUTO_INCREMENT|UNIQUE|PRIMARY\s+KEY|KEY|INDEX|COMMENT|COLLATE|CHARACTER\s+SET|,$|$))", RegexOptions.IgnoreCase);
+            if (onUpdateMatch.Success)
+            {
+                column.OnUpdate = onUpdateMatch.Groups[1].Value.Trim().Trim(',').Trim();
+            }
 
             // --- Check for COMMENT ---
             // Not stored currently
@@ -800,6 +817,48 @@ namespace Sql_Compare
             }
 
             return column;
+        }
+
+        private List<string> SplitEnumValues(string enumContent)
+        {
+            var values = new List<string>();
+            var current = new StringBuilder();
+            bool inQuotes = false;
+            char quoteChar = '\0';
+
+            for (int i = 0; i < enumContent.Length; i++)
+            {
+                char c = enumContent[i];
+                
+                if ((c == '\'' || c == '"') && !inQuotes)
+                {
+                    inQuotes = true;
+                    quoteChar = c;
+                    // Don't append the opening quote
+                }
+                else if (c == quoteChar && inQuotes)
+                {
+                    inQuotes = false;
+                    quoteChar = '\0';
+                    // Don't append the closing quote
+                }
+                else if (c == ',' && !inQuotes)
+                {
+                    values.Add(current.ToString().Trim());
+                    current.Clear();
+                }
+                else
+                {
+                    current.Append(c);
+                }
+            }
+
+            if (current.Length > 0)
+            {
+                values.Add(current.ToString().Trim());
+            }
+
+            return values;
         }
 
         private void ParseAlterTableConstraints(string sql, DatabaseSchema schema)

@@ -654,6 +654,11 @@ namespace Sql_Compare
                 sb.Append($" DEFAULT {col.DefaultValue}");
             }
 
+            if (!string.IsNullOrEmpty(col.OnUpdate))
+            {
+                sb.Append($" ON UPDATE {col.OnUpdate}");
+            }
+
             return sb.ToString();
         }
 
@@ -685,7 +690,8 @@ namespace Sql_Compare
             }
             sb.AppendLine($"ALTER TABLE {Tbl(table)} MODIFY COLUMN {Q(localCol.Name)} {localCol.GetDataTypeDisplay()}" +
                 (localCol.IsNullable ? " NULL" : " NOT NULL") +
-                (!string.IsNullOrEmpty(localCol.DefaultValue) ? $" DEFAULT {localCol.DefaultValue}" : "") + ";");
+                (!string.IsNullOrEmpty(localCol.DefaultValue) ? $" DEFAULT {localCol.DefaultValue}" : "") +
+                (!string.IsNullOrEmpty(localCol.OnUpdate) ? $" ON UPDATE {localCol.OnUpdate}" : "") + ";");
             sb.AppendLine();
 
             return sb.ToString();

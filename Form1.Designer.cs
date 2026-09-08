@@ -12,7 +12,9 @@
         private System.Windows.Forms.TextBox txtServerFile;
         private System.Windows.Forms.Button btnBrowseLocal;
         private System.Windows.Forms.Button btnBrowseServer;
+        private System.Windows.Forms.Panel panelCompare;
         private System.Windows.Forms.Button btnCompare;
+        private System.Windows.Forms.Button btnViceVersa;
         private System.Windows.Forms.Button btnExport;
         private System.Windows.Forms.TreeView treeResults;
         private System.Windows.Forms.ImageList imageList;
@@ -48,7 +50,9 @@
             this.lblServer = new System.Windows.Forms.Label();
             this.txtServerFile = new System.Windows.Forms.TextBox();
             this.btnBrowseServer = new System.Windows.Forms.Button();
+            this.panelCompare = new System.Windows.Forms.Panel();
             this.btnCompare = new System.Windows.Forms.Button();
+            this.btnViceVersa = new System.Windows.Forms.Button();
             this.btnExport = new System.Windows.Forms.Button();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.treeResults = new System.Windows.Forms.TreeView();
@@ -64,6 +68,7 @@
             this.mainLayout.SuspendLayout();
             this.localPanel.SuspendLayout();
             this.serverPanel.SuspendLayout();
+            this.panelCompare.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -76,13 +81,13 @@
             this.mainLayout.ColumnCount = 6;
             this.mainLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80F));
             this.mainLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.mainLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.mainLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 260F));
             this.mainLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80F));
             this.mainLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.mainLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.mainLayout.Controls.Add(this.localPanel, 0, 0);
             this.mainLayout.Controls.Add(this.serverPanel, 3, 0);
-            this.mainLayout.Controls.Add(this.btnCompare, 2, 1);
+            this.mainLayout.Controls.Add(this.panelCompare, 2, 1);
             this.mainLayout.Controls.Add(this.btnExport, 5, 1);
             this.mainLayout.Controls.Add(this.splitContainer, 0, 2);
             this.mainLayout.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -99,45 +104,46 @@
             // localPanel
             // 
             this.mainLayout.SetColumnSpan(this.localPanel, 2);
-            this.localPanel.Controls.Add(this.lblLocal);
             this.localPanel.Controls.Add(this.txtLocalFile);
+            this.localPanel.Controls.Add(this.lblLocal);
             this.localPanel.Controls.Add(this.btnBrowseLocal);
             this.localPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.localPanel.Location = new System.Drawing.Point(13, 13);
             this.localPanel.Name = "localPanel";
-            this.localPanel.Size = new System.Drawing.Size(493, 29);
+            this.localPanel.Size = new System.Drawing.Size(404, 29);
             this.localPanel.TabIndex = 0;
             // 
             // lblLocal
             // 
             this.lblLocal.AutoSize = true;
+            this.lblLocal.Dock = System.Windows.Forms.DockStyle.Left;
             this.lblLocal.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblLocal.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(120)))), ((int)(((byte)(212)))));
             this.lblLocal.Location = new System.Drawing.Point(3, 7);
             this.lblLocal.Name = "lblLocal";
-            this.lblLocal.Size = new System.Drawing.Size(49, 17);
+            this.lblLocal.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
+            this.lblLocal.Size = new System.Drawing.Size(49, 23);
             this.lblLocal.TabIndex = 0;
             this.lblLocal.Text = "Local:";
             // 
             // txtLocalFile
             // 
-            this.txtLocalFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtLocalFile.Location = new System.Drawing.Point(58, 5);
+            this.txtLocalFile.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtLocalFile.Location = new System.Drawing.Point(0, 0);
             this.txtLocalFile.Name = "txtLocalFile";
             this.txtLocalFile.ReadOnly = true;
-            this.txtLocalFile.Size = new System.Drawing.Size(339, 22);
+            this.txtLocalFile.Size = new System.Drawing.Size(250, 22);
             this.txtLocalFile.TabIndex = 1;
             this.txtLocalFile.Text = "Click Browse to select Local SQL file...";
             // 
             // btnBrowseLocal
             // 
-            this.btnBrowseLocal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnBrowseLocal.Dock = System.Windows.Forms.DockStyle.Right;
             this.btnBrowseLocal.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(120)))), ((int)(((byte)(212)))));
             this.btnBrowseLocal.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnBrowseLocal.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnBrowseLocal.ForeColor = System.Drawing.Color.White;
-            this.btnBrowseLocal.Location = new System.Drawing.Point(403, 3);
+            this.btnBrowseLocal.Location = new System.Drawing.Point(314, 0);
             this.btnBrowseLocal.Name = "btnBrowseLocal";
             this.btnBrowseLocal.Size = new System.Drawing.Size(87, 26);
             this.btnBrowseLocal.TabIndex = 2;
@@ -148,45 +154,46 @@
             // serverPanel
             // 
             this.mainLayout.SetColumnSpan(this.serverPanel, 2);
-            this.serverPanel.Controls.Add(this.lblServer);
             this.serverPanel.Controls.Add(this.txtServerFile);
+            this.serverPanel.Controls.Add(this.lblServer);
             this.serverPanel.Controls.Add(this.btnBrowseServer);
             this.serverPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.serverPanel.Location = new System.Drawing.Point(686, 13);
             this.serverPanel.Name = "serverPanel";
-            this.serverPanel.Size = new System.Drawing.Size(494, 29);
+            this.serverPanel.Size = new System.Drawing.Size(404, 29);
             this.serverPanel.TabIndex = 1;
             // 
             // lblServer
             // 
             this.lblServer.AutoSize = true;
+            this.lblServer.Dock = System.Windows.Forms.DockStyle.Left;
             this.lblServer.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblServer.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(204)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.lblServer.Location = new System.Drawing.Point(3, 7);
             this.lblServer.Name = "lblServer";
-            this.lblServer.Size = new System.Drawing.Size(49, 17);
+            this.lblServer.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
+            this.lblServer.Size = new System.Drawing.Size(49, 23);
             this.lblServer.TabIndex = 0;
             this.lblServer.Text = "Server:";
             // 
             // txtServerFile
             // 
-            this.txtServerFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtServerFile.Location = new System.Drawing.Point(58, 5);
+            this.txtServerFile.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtServerFile.Location = new System.Drawing.Point(0, 0);
             this.txtServerFile.Name = "txtServerFile";
             this.txtServerFile.ReadOnly = true;
-            this.txtServerFile.Size = new System.Drawing.Size(340, 22);
+            this.txtServerFile.Size = new System.Drawing.Size(250, 22);
             this.txtServerFile.TabIndex = 1;
             this.txtServerFile.Text = "Click Browse to select Server SQL file...";
             // 
             // btnBrowseServer
             // 
-            this.btnBrowseServer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnBrowseServer.Dock = System.Windows.Forms.DockStyle.Right;
             this.btnBrowseServer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(204)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnBrowseServer.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnBrowseServer.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnBrowseServer.ForeColor = System.Drawing.Color.White;
-            this.btnBrowseServer.Location = new System.Drawing.Point(404, 3);
+            this.btnBrowseServer.Location = new System.Drawing.Point(317, 0);
             this.btnBrowseServer.Name = "btnBrowseServer";
             this.btnBrowseServer.Size = new System.Drawing.Size(87, 26);
             this.btnBrowseServer.TabIndex = 2;
@@ -194,21 +201,48 @@
             this.btnBrowseServer.UseVisualStyleBackColor = false;
             this.btnBrowseServer.Click += new System.EventHandler(this.BtnBrowseServer_Click);
             // 
+            // panelCompare
+            // 
+            this.panelCompare.Controls.Add(this.btnCompare);
+            this.panelCompare.Controls.Add(this.btnViceVersa);
+            this.panelCompare.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelCompare.Location = new System.Drawing.Point(253, 48);
+            this.panelCompare.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.panelCompare.Name = "panelCompare";
+            this.panelCompare.Size = new System.Drawing.Size(254, 40);
+            this.panelCompare.TabIndex = 5;
+            // 
             // btnCompare
             // 
             this.btnCompare.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(150)))), ((int)(((byte)(136)))));
-            this.btnCompare.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnCompare.Dock = System.Windows.Forms.DockStyle.Left;
             this.btnCompare.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCompare.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
             this.btnCompare.ForeColor = System.Drawing.Color.White;
-            this.btnCompare.Location = new System.Drawing.Point(253, 48);
-            this.btnCompare.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.btnCompare.Location = new System.Drawing.Point(0, 0);
+            this.btnCompare.Margin = new System.Windows.Forms.Padding(0);
             this.btnCompare.Name = "btnCompare";
-            this.btnCompare.Size = new System.Drawing.Size(118, 40);
+            this.btnCompare.Size = new System.Drawing.Size(127, 40);
             this.btnCompare.TabIndex = 2;
             this.btnCompare.Text = "Compare";
             this.btnCompare.UseVisualStyleBackColor = false;
             this.btnCompare.Click += new System.EventHandler(this.BtnCompare_Click);
+            // 
+            // btnViceVersa
+            // 
+            this.btnViceVersa.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(102)))), ((int)(((byte)(51)))), ((int)(((byte)(153)))));
+            this.btnViceVersa.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnViceVersa.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnViceVersa.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnViceVersa.ForeColor = System.Drawing.Color.White;
+            this.btnViceVersa.Location = new System.Drawing.Point(127, 0);
+            this.btnViceVersa.Margin = new System.Windows.Forms.Padding(0);
+            this.btnViceVersa.Name = "btnViceVersa";
+            this.btnViceVersa.Size = new System.Drawing.Size(127, 40);
+            this.btnViceVersa.TabIndex = 6;
+            this.btnViceVersa.Text = "⇄ Swap";
+            this.btnViceVersa.UseVisualStyleBackColor = false;
+            this.btnViceVersa.Click += new System.EventHandler(this.BtnViceVersa_Click);
             // 
             // btnExport
             // 
@@ -354,6 +388,7 @@
             this.localPanel.PerformLayout();
             this.serverPanel.ResumeLayout(false);
             this.serverPanel.PerformLayout();
+            this.panelCompare.ResumeLayout(false);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel2.ResumeLayout(false);
             this.splitContainer.ResumeLayout(false);
